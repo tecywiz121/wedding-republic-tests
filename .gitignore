@@ -1,0 +1,7 @@
+# Python object files
+*.pyc
+*.pyo
+
+# Patch Files
+*.orig
+*.rej
