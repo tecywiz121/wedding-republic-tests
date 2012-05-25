@@ -12,7 +12,7 @@ from uuid import uuid4
 
 class SeleniumTest(object):
     SCHEME = 'https'
-    HOST = 'www.weddingrepublic.dev'
+    HOST = 'staging.weddingrepublic.com'
     USERNAME = 'tecywiz121@hotmail.com'
     PASSWORD = 'tecy121'
     REGISTRY = 'testregistry'
@@ -604,14 +604,14 @@ class TestInvite(SeleniumTest, TestCase):
             notifications.sort(lambda y,x: cmp(x.get_attribute('data-notiftime'), y.get_attribute('data-notiftime')))
             for notification in notifications:
                 links = notification.find_elements_by_tag_name('a')
-                links = [x for x in links if 'a request' in x.text]
+                links = [x for x in links if 'a request' in x.text or 'requests' in x.text]
                 try:
                     return links[0]
                 except IndexError:
                     pass
             return False
 
-        WebDriverWait(self.driver, 5).until(_find_notification)
+        WebDriverWait(self.driver, 30).until(_find_notification)
         link = _find_notification(self.driver)
         link.click()
 
@@ -619,8 +619,8 @@ class TestInvite(SeleniumTest, TestCase):
 
         WebDriverWait(self.driver, 5).until(lambda x: x.find_element_by_name('iframe_canvas_fb_https'))
         self.driver.switch_to_frame(self.driver.find_element_by_name('iframe_canvas_fb_https'))
-        self.driver.execute_script('document.write("banana");')
-        time.sleep(100)
+        html = self.driver.page_source
+        self.assertNotIn('uh oh', html.lower())
 
 
 if __name__ == '__main__':
