@@ -48,6 +48,7 @@ class SeleniumTest(object):
             self.get(self.path)
 
     def tearDown(self):
+        self.driver.close()
         self.driver.quit()
         del self.driver
 
@@ -503,9 +504,10 @@ class TestAddGiftUseCases(SeleniumTest, TestCase):
     
     def test_add_gift_one_piece(self):
         ''' Test adding a gift with a single piece '''
-        giftName = 'Lucky'
+        giftName = 'Bucky'
         giftPrice = '5000'
         giftDescription = 'Wicked Ole Cat'
+        numberofPieces = '1'
         
         ''''The wishlist has two sets of fields for the gift form, one for adds, another for templates. 
         When we ask for the a field for the add box, we get a list of fields. This is the index of the add new field in that list'''
@@ -513,7 +515,7 @@ class TestAddGiftUseCases(SeleniumTest, TestCase):
         
         'Open the gift dialog'
         self.interact([('#add_my_own', WebElement.click)])
-        time.sleep(addNewGiftfieldIndex)
+        time.sleep(2)
         
         'Fill in & submit add form'
         nameField = self.driver.find_elements_by_css_selector('#name')
@@ -527,40 +529,118 @@ class TestAddGiftUseCases(SeleniumTest, TestCase):
         descriptionField = self.driver.find_elements_by_css_selector('#description')
         descriptionField[addNewGiftfieldIndex].clear()
         descriptionField[addNewGiftfieldIndex].send_keys(giftDescription)
-       
+        
         self.interact([('#save_gift', WebElement.click)])
     
         'Get the item from the wish list'
         addedGiftElement = 0
         
         try:    
-            addedGiftElement = self.driver.find_element_by_xpath('//*[@data-item-name="Lucky"]')
+            addedGiftElement = self.driver.find_element_by_xpath('//*[@data-item-name="{}"]'.format(giftName))
         except Exception:
             self.fail('Item not added to wishlist')
         
         'Open the gift dialog for the item'
         addedGiftId = addedGiftElement.get_attribute('id');
-        self.interact([('li[data-item-id="{}"]'.format(addedGiftId), WebElement.click)])    
+        self.interact([('li[data-item-id="{}"]'.format(addedGiftId), WebElement.click)])
+        time.sleep(2)    
        
         'Check the field values'
         nameField = self.driver.find_elements_by_css_selector('#name')
-        if nameField[addNewGiftfieldIndex].text !=  giftName :
+        if nameField[addNewGiftfieldIndex].get_attribute('value') !=  giftName :
             self.fail('Name field in pop does not match entered name')
                     
         priceField = self.driver.find_elements_by_css_selector('#price')
-        if priceField[addNewGiftfieldIndex].text !=  giftPrice :
+        if priceField[addNewGiftfieldIndex].get_attribute('value') !=  giftPrice :
             self.fail('Price field in pop does not match entered price')
         
         descriptionField = self.driver.find_elements_by_css_selector('#description')
-        if descriptionField[addNewGiftfieldIndex].text !=  giftDescription :
+        if descriptionField[addNewGiftfieldIndex].get_attribute('value') !=  giftDescription :
             self.fail('Description field in pop does not match entered description')
-        
-        print 'Help'
-        
-        'Delete the item'
             
-        pass    
+        pieceField = self.driver.find_elements_by_css_selector('#numberOfPuzzlePieces')
+        if pieceField[addNewGiftfieldIndex].text !=  numberofPieces :
+            self.fail('Puzzle piece field in pop does not equal {}'.format(numberofPieces))            
+            
+        'Delete the item'
+        'Delete the item'
+        'Open the item from the wish list'
+        self.interact([('li[data-item-id="{}"]'.format(addedGiftId), WebElement.click)])
+        remove_button = self.driver.find_elements_by_css_selector('#remove_gift')
+        remove_button[0].click()
+    
+    def test_add_gift_7_piece(self):
+        ''' Test adding a gift with a 7 pieces '''
+        giftName = 'Junk'
+        giftPrice = '5000'
+        giftDescription = 'Wicked Ole Cat'
+        numberofPieces = '7'
         
+        ''''The wishlist has two sets of fields for the gift form, one for adds, another for templates. 
+        When we ask for the a field for the add box, we get a list of fields. This is the index of the add new field in that list'''
+        addNewGiftfieldIndex = 1 
+        
+        'Open the gift dialog'
+        self.interact([('#add_my_own', WebElement.click)])
+        time.sleep(2)
+        
+        'Fill in the gift information'
+        nameField = self.driver.find_elements_by_css_selector('#name')
+        nameField[addNewGiftfieldIndex].clear()
+        nameField[addNewGiftfieldIndex].send_keys(giftName)
+       
+        priceField = self.driver.find_elements_by_css_selector('#price')
+        priceField[addNewGiftfieldIndex].clear()
+        priceField[addNewGiftfieldIndex].send_keys(giftPrice)
+        
+        descriptionField = self.driver.find_elements_by_css_selector('#description')
+        descriptionField[addNewGiftfieldIndex].clear()
+        descriptionField[addNewGiftfieldIndex].send_keys(giftDescription)
+        
+        'Set the number of pieces'
+        add_pieces = self.driver.find_elements_by_css_selector('#addPieces')
+        for n in range(int(numberofPieces) - 1) :
+            add_pieces[addNewGiftfieldIndex].click();
+        
+        'Save the gift' 
+        self.interact([('#save_gift', WebElement.click)])
+        time.sleep(2)
+    
+        'Get the item from the wish list'
+        addedGiftElement = 0
+        
+        try:    
+            addedGiftElement = self.driver.find_element_by_xpath('//*[@data-item-name="{}"]'.format(giftName))
+        except Exception:
+            self.fail('Item not added to wishlist')
+        
+        'Open the gift dialog for the item'
+        addedGiftId = addedGiftElement.get_attribute('id');
+        self.interact([('li[data-item-id="{}"]'.format(addedGiftId), WebElement.click)])
+        time.sleep(2)    
+       
+        'Check the field values'
+        nameField = self.driver.find_elements_by_css_selector('#name')
+        if nameField[addNewGiftfieldIndex].get_attribute('value') !=  giftName :
+            self.fail('Name field in pop does not match entered name')
+                    
+        priceField = self.driver.find_elements_by_css_selector('#price')
+        if priceField[addNewGiftfieldIndex].get_attribute('value') !=  giftPrice :
+            self.fail('Price field in pop does not match entered price')
+        
+        descriptionField = self.driver.find_elements_by_css_selector('#description')
+        if descriptionField[addNewGiftfieldIndex].get_attribute('value') !=  giftDescription :
+            self.fail('Description field in pop does not match entered description')
+            
+        pieceField = self.driver.find_elements_by_css_selector('#numberOfPuzzlePieces')
+        if pieceField[addNewGiftfieldIndex].text !=  numberofPieces :
+            self.fail('Puzzle piece field in pop does not equal {}'.format(numberofPieces))            
+            
+        'Delete the item'
+        'Open the item from the wish list'
+        self.interact([('li[data-item-id="{}"]'.format(addedGiftId), WebElement.click)])
+        remove_button = self.driver.find_elements_by_css_selector('#remove_gift')
+        remove_button[0].click()
 
 class TestGifts(SeleniumTest, TestCase):
     path = '/registry/mygifts/{0}/'.format(SeleniumTest.REGISTRY)
